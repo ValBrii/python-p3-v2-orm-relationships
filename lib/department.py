@@ -99,7 +99,7 @@ class Department:
             department.location = row[2]
         else:
             # not in dictionary, create new instance and add to dictionary
-            department = cls(row[1], row[2])
+            department = cls(row[1], row[2], row[3])
             department.id = row[0]
             cls.all[department.id] = department
         return department
@@ -139,3 +139,15 @@ class Department:
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+    
+    def employees(self):
+        """ Get all employees that belong to this department """
+        from employee import Employee  # Import Employee inside the method to avoid circular import
+        sql = """
+            SELECT *
+            FROM employees
+            WHERE department_id = ?
+        """
+        rows = CURSOR.execute(sql, (self.id,)).fetchall()
+        return [Employee.instance_from_db(row) for row in rows]
+    
